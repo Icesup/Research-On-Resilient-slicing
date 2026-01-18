@@ -1,0 +1,96 @@
+settings:
+  simulation_time: 600
+  num_clients: 300
+  limit_closest_base_stations: 5
+  statistics_params:
+    warmup_ratio: 0.05
+    cooldown_ratio: 0.05
+    x: {min: 0, max: 2000}
+    y: {min: 0, max: 2000}
+  logging: True
+  log_file: output.txt
+  plotting_params:
+    plotting: True
+    plot_save: True
+    plot_show: True
+    plot_file: comparison_report_final.png
+    plot_file_dpi: 100
+    scatter_size: 15
+
+slices:
+  embb:
+    name_display: "eMBB"
+    delay_tolerance: 500
+    qos_class: 3
+    bandwidth_guaranteed: 500000
+    bandwidth_max: 2000000
+    client_weight: 0.4
+    resilience_policy:
+      overhead_factor: 1.0
+      require_backup: False
+    qor_metric: "loss_area"
+    secondary_metric: "throughput"
+    usage_pattern:
+      distribution: randint
+      params: [2000000, 8000000]
+
+  urllc: # 切片类型2：超高可靠低延迟通信 (URLLC)
+    name_display: "URLLC"       # 显示名称
+    delay_tolerance: 50         # 延迟容忍度：50ms（极低，非常敏感）
+    qos_class: 5                # QoS等级：5（高优先级）
+    bandwidth_guaranteed: 100000 # 保证带宽：100kbps
+    bandwidth_max: 300000       # 最大带宽：300kbps
+    client_weight: 0.2          # 客户端权重：20%的客户端属于此类型
+    resilience_policy: # 韧性策略
+      overhead_factor: 1.2      # 开销因子：1.2（预留20%额外资源用于保障可靠性）
+      require_backup: True      # 备份需求：必须有备份链路（对应高可靠性要求）
+    qor_metric: "min_performance" # 韧性指标：关注最低性能保障
+    secondary_metric: "availability" # 次要指标：可用性
+    usage_pattern: # 流量模式
+      distribution: randint
+      params: [ 50000, 200000 ]   # 参数：需求在 50kbps 到 200kbps 之间
+
+  mmtc:
+    name_display: "mMTC"
+    delay_tolerance: 2000
+    qos_class: 1
+    bandwidth_guaranteed: 20000 # 20kbps
+    bandwidth_max: 50000
+    client_weight: 0.4
+    resilience_policy:
+      overhead_factor: 1.0
+      require_backup: False
+    qor_metric: "blocking"
+    secondary_metric: "blocking"
+    usage_pattern:
+      distribution: randint
+      params: [5000, 20000]
+
+base_stations:
+  - x: 0
+    y: 0
+    coverage: 450
+    # 总带宽 5 Mbps
+    capacity_bandwidth: 5000000
+    ratios:
+      embb: 0.70  # 3.5Mbps
+      urllc: 0.25 # 1.25Mbps
+      mmtc: 0.05  # 250Kbps -> 仅容纳 ~12 个并发连接，极易阻塞
+
+mobility_patterns:
+  normal:
+    distribution: normal
+    params: [0, 2]
+    client_weight: 1.0
+
+clients:
+  location:
+    x: {distribution: randint, params: [0, 2000]}
+    y: {distribution: randint, params: [0, 2000]}
+  usage:
+    distribution: randint
+    params: [0, 60000]
+  usage_frequency:
+    distribution: randint
+    params: [0, 50000]
+    divide_scale: 1000000
