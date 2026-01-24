@@ -1,0 +1,97 @@
+settings:
+  simulation_time: 600
+  num_clients: 300
+  limit_closest_base_stations: 5
+  statistics_params:
+    warmup_ratio: 0.05
+    cooldown_ratio: 0.05
+    x: {min: 0, max: 2000}
+    y: {min: 0, max: 2000}
+  logging: True
+  log_file: output.txt
+  plotting_params:
+    plotting: True
+    plot_save: True
+    plot_show: True
+    plot_file: comparison_report_final.png
+    plot_file_dpi: 100
+    scatter_size: 15
+
+slices:
+  embb:
+    name_display: "eMBB"
+    delay_tolerance: 500
+    qos_class: 3
+    bandwidth_guaranteed: 500000
+    bandwidth_max: 2000000
+    client_weight: 0.4
+    resilience_policy:
+      overhead_factor: 1.0
+      require_backup: True  # [核心修改] 激活备份机制，实现动态分流文献[4.2]
+    qor_metric: "loss_area"
+    secondary_metric: "throughput"
+    usage_pattern:
+      distribution: randint
+      params: [2000000, 8000000]
+
+  urllc:
+    name_display: "URLLC"
+    delay_tolerance: 50
+    qos_class: 5
+    bandwidth_guaranteed: 100000
+    bandwidth_max: 300000
+    client_weight: 0.2
+    resilience_policy:
+      overhead_factor: 1.2
+      require_backup: True  # [保持] 激活多连接机制文献[2.2]
+    qor_metric: "min_performance"
+    secondary_metric: "availability"
+    usage_pattern:
+      distribution: randint
+      params: [ 50000, 200000 ]
+
+  mmtc:
+    name_display: "mMTC"
+    delay_tolerance: 2000
+    qos_class: 1
+    bandwidth_guaranteed: 20000
+    bandwidth_max: 50000
+    client_weight: 0.4
+    resilience_policy:
+      overhead_factor: 1.0
+      require_backup: True  # [核心修改] 激活备份机制，允许拥塞时寻找替代节点文献[3.4]
+    qor_metric: "blocking"
+    secondary_metric: "blocking"
+    usage_pattern:
+      distribution: randint
+      params: [5000, 20000]
+
+base_stations:
+  - x: 0
+    y: 0
+    coverage: 450
+    # 总带宽 5 Mbps
+    capacity_bandwidth: 5000000
+    ratios:
+      embb: 0.70
+      urllc: 0.25
+      mmtc: 0.05  # 保持较小带宽，制造拥塞场景
+
+mobility_patterns:
+  normal:
+    distribution: normal
+    params: [0, 2]
+    client_weight: 1.0
+
+clients:
+  location:
+    x: {distribution: randint, params: [0, 2000]}
+    y: {distribution: randint, params: [0, 2000]}
+  usage:
+    distribution: randint
+    params: [0, 60000]
+  usage_frequency:
+    distribution: randint
+    params: [0, 50000]
+    # 保持原样，平时静默，依靠 Main 中的风暴注入产生流量
+    divide_scale: 1000000
