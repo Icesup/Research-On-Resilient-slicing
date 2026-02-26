@@ -1,0 +1,6 @@
+﻿Slice,Metric,Normal_Val,Faulty_Val,Resilient_Val,Diff(Opt)
+embb,Mean Throughput (Mbps),75.88,65.38,100.31,+34.93
+embb,Loss Area,0.00,15845.14,668.23,+15176.91
+embb,Gain Area,0.00,64.17,37374.98,+37310.81
+urllc,Max Interruption (s),0,140,57,+83.0
+mmtc,Mean Connected Count,141.94,72.79,106.48,+33.68
