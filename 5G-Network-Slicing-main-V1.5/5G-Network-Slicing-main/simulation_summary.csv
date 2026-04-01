@@ -1,0 +1,4 @@
+﻿Slice,Metric,Normal_Val,Faulty_Val,Resilient_Val,Diff(Opt)
+embb,Mean Throughput (Mbps),75.99,75.45,115.64,+40.19
+urllc,Max Interruption (s),0,470,28,+442.0
+mmtc,Mean Connected Count,133.25,105.17,136.44,+31.27
